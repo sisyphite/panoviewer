@@ -1,134 +1,252 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-<meta charset="UTF-8">
-<title>全景图查看器</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📷</text></svg>">
-<style>
-  html, body { margin: 0; padding: 0; overflow: hidden; background: #0b0d10; height: 100%; }
-  #viewer { width: 100vw; height: 100vh; display: block; cursor: grab; }
-  #viewer:active { cursor: grabbing; }
+  <meta charset="UTF-8">
+  <title>全景图查看器</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📷</text></svg>">
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #0b0d10;
+      height: 100%;
+    }
 
-  #hud {
-    position: fixed; top: 16px; left: 16px;
-    color: #e8eaed; font-family: -apple-system, "Segoe UI", sans-serif;
-    background: rgba(20,22,26,0.72); backdrop-filter: blur(6px);
-    padding: 14px 18px; border-radius: 10px; font-size: 13px;
-    line-height: 1.6; max-width: 300px; border: 1px solid rgba(255,255,255,0.08);
-  }
-  #hud b { color: #7dd3fc; }
-  #hud .hint { color: #9aa0a6; font-size: 12px; margin-top: 6px; }
+    #viewer {
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      cursor: grab;
+    }
 
-  #controls {
-    position: fixed; top: 16px; right: 16px;
-    display: flex; flex-direction: column; gap: 8px; align-items: flex-end;
-  }
-  .btn {
-    background: rgba(20,22,26,0.72); color: #e8eaed; border: 1px solid rgba(255,255,255,0.12);
-    padding: 9px 16px; border-radius: 8px; font-size: 13px; cursor: pointer;
-    font-family: -apple-system, "Segoe UI", sans-serif; transition: background 0.15s;
-  }
-  .btn:hover { background: rgba(40,44,52,0.9); }
-  #folderInput { display: none; }
+    #viewer:active {
+      cursor: grabbing;
+    }
 
-  #stats {
-    position: fixed; bottom: 16px; left: 16px;
-    color: #9aa0a6; font-family: -apple-system, "Segoe UI", sans-serif; font-size: 12px;
-    background: rgba(20,22,26,0.6); padding: 8px 12px; border-radius: 8px;
-  }
+    #hud {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      color: #e8eaed;
+      font-family: -apple-system, "Segoe UI", sans-serif;
+      background: rgba(20, 22, 26, 0.72);
+      backdrop-filter: blur(6px);
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.6;
+      max-width: 300px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
 
-  #nav {
-    position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
-    display: flex; align-items: center; gap: 10px;
-    background: rgba(20,22,26,0.78); backdrop-filter: blur(6px);
-    padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
-    font-family: -apple-system, "Segoe UI", sans-serif;
-  }
-  #nav button {
-    background: rgba(255,255,255,0.08); color: #e8eaed; border: 1px solid rgba(255,255,255,0.15);
-    width: 36px; height: 36px; border-radius: 8px; font-size: 16px; cursor: pointer;
-  }
-  #nav button:disabled { opacity: 0.3; cursor: default; }
-  #nav button:not(:disabled):hover { background: rgba(255,255,255,0.18); }
-  #navInfo { color: #e8eaed; font-size: 13px; min-width: 260px; text-align: center; }
-  #navInfo .fname { color: #7dd3fc; display: block; margin-bottom: 2px; word-break: break-all; }
-  #navInfo .fidx { color: #9aa0a6; font-size: 12px; }
-  #navInfo .stepRow {
-    margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 6px;
-  }
-  #navInfo .stepRow label { color: #9aa0a6; font-size: 12px; }
-  #stepInput {
-    width: 56px; background: rgba(255,255,255,0.08); color: #e8eaed;
-    border: 1px solid rgba(255,255,255,0.15); border-radius: 6px;
-    padding: 3px 6px; font-size: 12px; text-align: center;
-    font-family: -apple-system, "Segoe UI", sans-serif;
-  }
-  #stepInput:focus { outline: none; border-color: #7dd3fc; }
-</style>
+    #hud b {
+      color: #7dd3fc;
+    }
+
+    #hud .hint {
+      color: #9aa0a6;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    #controls {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .btn {
+      background: rgba(20, 22, 26, 0.72);
+      color: #e8eaed;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: -apple-system, "Segoe UI", sans-serif;
+      transition: background 0.15s;
+    }
+
+    .btn:hover {
+      background: rgba(40, 44, 52, 0.9);
+    }
+
+    #folderInput {
+      display: none;
+    }
+
+    #stats {
+      position: fixed;
+      bottom: 16px;
+      left: 16px;
+      color: #9aa0a6;
+      font-family: -apple-system, "Segoe UI", sans-serif;
+      font-size: 12px;
+      background: rgba(20, 22, 26, 0.6);
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+
+    #nav {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(20, 22, 26, 0.78);
+      backdrop-filter: blur(6px);
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-family: -apple-system, "Segoe UI", sans-serif;
+    }
+
+    #nav button {
+      background: rgba(255, 255, 255, 0.08);
+      color: #e8eaed;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #nav button:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    #nav button:not(:disabled):hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    #navInfo {
+      color: #e8eaed;
+      font-size: 13px;
+      min-width: 260px;
+      text-align: center;
+    }
+
+    #navInfo .fname {
+      color: #7dd3fc;
+      display: block;
+      margin-bottom: 2px;
+      word-break: break-all;
+    }
+
+    #navInfo .fidx {
+      color: #9aa0a6;
+      font-size: 12px;
+    }
+
+    #navInfo .stepRow {
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    #navInfo .stepRow label {
+      color: #9aa0a6;
+      font-size: 12px;
+    }
+
+    #stepInput {
+      width: 56px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #e8eaed;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      padding: 3px 6px;
+      font-size: 12px;
+      text-align: center;
+      font-family: -apple-system, "Segoe UI", sans-serif;
+    }
+
+    #stepInput:focus {
+      outline: none;
+      border-color: #7dd3fc;
+    }
+  </style>
 </head>
+
 <body>
 
-<canvas id="viewer"></canvas>
+  <canvas id="viewer"></canvas>
 
-<div id="hud">
-  <div><b>全景图查看器</b></div>
-  <div class="hint">拖拽 = 转动视角 (yaw/pitch)</div>
-  <div class="hint">滚轮 = 缩放 (调整FOV)</div>
-  <div class="hint">← / → 或下方按钮 = 按步长切换图片</div>
-</div>
-
-<div id="controls">
-  <button class="btn" id="loadFolderBtn">选择图片文件夹</button>
-  <button class="btn" id="testBtn">恢复测试图</button>
-  <input type="file" id="folderInput" webkitdirectory directory multiple>
-</div>
-
-<div id="nav">
-  <button id="prevBtn" disabled>◀</button>
-  <div id="navInfo">
-    <span class="fname">未加载文件夹</span>
-    <span class="fidx">—</span>
-    <div class="stepRow">
-      <label for="stepInput">步长</label>
-      <input type="number" id="stepInput" value="2" min="1" step="1">
+  <div id="hud">
+    <div><b>全景图查看器</b></div>
+    <div class="hint">拖拽 = 转动视角 (yaw/pitch)</div>
+    <div class="hint">滚轮 = 缩放 (调整FOV)</div>
+    <div class="hint">
+      <kbd>A</kbd>/<kbd>←</kbd> 或 <kbd>D</kbd>/<kbd>→</kbd>：切换图片 (或使用下方按钮)
     </div>
   </div>
-  <button id="nextBtn" disabled>▶</button>
-</div>
 
-<div id="stats">yaw: 0.0°　pitch: 0.0°　fov: 75°</div>
+  <div id="controls">
+    <button class="btn" id="loadFolderBtn">选择图片文件夹</button>
+    <button class="btn" id="testBtn">恢复测试图</button>
+    <input type="file" id="folderInput" webkitdirectory directory multiple>
+  </div>
 
-<script>
-// ============================================================
-// 纯 WebGL 实现,不依赖 three.js 或任何 CDN
-// 核心思路:
-//   全屏铺一个矩形,fragment shader 对每个像素:
-//   1. 屏幕坐标 -> 相机空间的射线方向 (由 FOV 决定张角)
-//   2. 射线方向按 yaw/pitch 旋转 -> 世界空间方向
-//   3. 世界方向 -> 经纬度 (球面坐标)
-//   4. 经纬度 -> 等距柱状图上的 uv 坐标,采样贴图
-// ============================================================
+  <div id="nav">
+    <button id="prevBtn" disabled>◀</button>
+    <div id="navInfo">
+      <span class="fname">未加载文件夹</span>
+      <span class="fidx">—</span>
+      <div class="stepRow">
+        <label for="stepInput">步长</label>
+        <input type="number" id="stepInput" value="2" min="1" step="1">
+      </div>
+    </div>
+    <button id="nextBtn" disabled>▶</button>
+  </div>
 
-const canvas = document.getElementById('viewer');
-const gl = canvas.getContext('webgl');
-if (!gl) alert('浏览器不支持 WebGL,换个浏览器试试');
+  <div id="stats">yaw: 0.0°　pitch: 0.0°　fov: 75°</div>
 
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  gl.viewport(0, 0, canvas.width, canvas.height);
-}
-window.addEventListener('resize', resize);
-resize();
+  <script>
+    // ============================================================
+    // 纯 WebGL 实现,不依赖 three.js 或任何 CDN
+    // 核心思路:
+    //   全屏铺一个矩形,fragment shader 对每个像素:
+    //   1. 屏幕坐标 -> 相机空间的射线方向 (由 FOV 决定张角)
+    //   2. 射线方向按 yaw/pitch 旋转 -> 世界空间方向
+    //   3. 世界方向 -> 经纬度 (球面坐标)
+    //   4. 经纬度 -> 等距柱状图上的 uv 坐标,采样贴图
+    // ============================================================
 
-// ---- Shader 源码 ----
-const vertSrc = `
+    const canvas = document.getElementById('viewer');
+    const gl = canvas.getContext('webgl');
+    if (!gl) alert('浏览器不支持 WebGL,换个浏览器试试');
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // ---- Shader 源码 ----
+    const vertSrc = `
 attribute vec2 aPos;
 void main() {
   gl_Position = vec4(aPos, 0.0, 1.0);
 }`;
 
-const fragSrc = `
+    const fragSrc = `
 precision highp float;
 uniform sampler2D uTex;
 uniform float uYaw;    // 弧度
@@ -159,243 +277,244 @@ void main() {
   gl_FragColor = texture2D(uTex, vec2(u, v));
 }`;
 
-function compileShader(src, type) {
-  const sh = gl.createShader(type);
-  gl.shaderSource(sh, src);
-  gl.compileShader(sh);
-  if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-    console.error(gl.getShaderInfoLog(sh));
-  }
-  return sh;
-}
+    function compileShader(src, type) {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(sh));
+      }
+      return sh;
+    }
 
-const program = gl.createProgram();
-gl.attachShader(program, compileShader(vertSrc, gl.VERTEX_SHADER));
-gl.attachShader(program, compileShader(fragSrc, gl.FRAGMENT_SHADER));
-gl.linkProgram(program);
-gl.useProgram(program);
+    const program = gl.createProgram();
+    gl.attachShader(program, compileShader(vertSrc, gl.VERTEX_SHADER));
+    gl.attachShader(program, compileShader(fragSrc, gl.FRAGMENT_SHADER));
+    gl.linkProgram(program);
+    gl.useProgram(program);
 
-const quad = new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]);
-const buf = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
-const aPos = gl.getAttribLocation(program, 'aPos');
-gl.enableVertexAttribArray(aPos);
-gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+    const quad = new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, quad, gl.STATIC_DRAW);
+    const aPos = gl.getAttribLocation(program, 'aPos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-const uYawLoc = gl.getUniformLocation(program, 'uYaw');
-const uPitchLoc = gl.getUniformLocation(program, 'uPitch');
-const uFovLoc = gl.getUniformLocation(program, 'uFov');
-const uAspectLoc = gl.getUniformLocation(program, 'uAspect');
-const uResolutionLoc = gl.getUniformLocation(program, 'uResolution');
+    const uYawLoc = gl.getUniformLocation(program, 'uYaw');
+    const uPitchLoc = gl.getUniformLocation(program, 'uPitch');
+    const uFovLoc = gl.getUniformLocation(program, 'uFov');
+    const uAspectLoc = gl.getUniformLocation(program, 'uAspect');
+    const uResolutionLoc = gl.getUniformLocation(program, 'uResolution');
 
-// ---- 纹理管理 ----
-const texture = gl.createTexture();
-gl.bindTexture(gl.TEXTURE_2D, texture);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    // ---- 纹理管理 ----
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-function uploadTexture(source) {
-  gl.bindTexture(gl.TEXTURE_2D, texture);
-  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
-}
+    function uploadTexture(source) {
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+    }
 
-// ---- 合成测试全景图 ----
-function generateTestPanorama() {
-  const w = 2048, h = 1024;
-  const cvs = document.createElement('canvas');
-  cvs.width = w; cvs.height = h;
-  const ctx = cvs.getContext('2d');
+    // ---- 合成测试全景图 ----
+    function generateTestPanorama() {
+      const w = 2048, h = 1024;
+      const cvs = document.createElement('canvas');
+      cvs.width = w; cvs.height = h;
+      const ctx = cvs.getContext('2d');
 
-  const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, '#1e3a5f');
-  grad.addColorStop(0.5, '#4a90d9');
-  grad.addColorStop(0.5, '#7a5230');
-  grad.addColorStop(1, '#3d2a1a');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, w, h);
+      const grad = ctx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, '#1e3a5f');
+      grad.addColorStop(0.5, '#4a90d9');
+      grad.addColorStop(0.5, '#7a5230');
+      grad.addColorStop(1, '#3d2a1a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
 
-  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-  ctx.lineWidth = 1;
-  for (let lon = 0; lon <= 360; lon += 15) {
-    const x = (lon / 360) * w;
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-  }
-  for (let lat = 0; lat <= 180; lat += 15) {
-    const y = (lat / 180) * h;
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-  }
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.lineWidth = 1;
+      for (let lon = 0; lon <= 360; lon += 15) {
+        const x = (lon / 360) * w;
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      }
+      for (let lat = 0; lat <= 180; lat += 15) {
+        const y = (lat / 180) * h;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+      }
 
-  ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.font = 'bold 22px sans-serif';
-  ctx.textAlign = 'center';
-  for (let lon = 0; lon < 360; lon += 45) {
-    const x = (lon / 360) * w;
-    ctx.fillText(lon + '°', x, h / 2 + 8);
-  }
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.textAlign = 'center';
+      for (let lon = 0; lon < 360; lon += 45) {
+        const x = (lon / 360) * w;
+        ctx.fillText(lon + '°', x, h / 2 + 8);
+      }
 
-  const marks = [
-    { lon: 0,   color: '#e74c3c', label: '北 N' },
-    { lon: 90,  color: '#2ecc71', label: '东 E' },
-    { lon: 180, color: '#f1c40f', label: '南 S' },
-    { lon: 270, color: '#9b59b6', label: '西 W' },
-  ];
-  marks.forEach(m => {
-    const x = (m.lon / 360) * w;
-    ctx.fillStyle = m.color;
-    ctx.beginPath();
-    ctx.arc(x, h * 0.3, 40, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#111';
-    ctx.font = 'bold 20px sans-serif';
-    ctx.fillText(m.label, x, h * 0.3 + 7);
-  });
+      const marks = [
+        { lon: 0, color: '#e74c3c', label: '北 N' },
+        { lon: 90, color: '#2ecc71', label: '东 E' },
+        { lon: 180, color: '#f1c40f', label: '南 S' },
+        { lon: 270, color: '#9b59b6', label: '西 W' },
+      ];
+      marks.forEach(m => {
+        const x = (m.lon / 360) * w;
+        ctx.fillStyle = m.color;
+        ctx.beginPath();
+        ctx.arc(x, h * 0.3, 40, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#111';
+        ctx.font = 'bold 20px sans-serif';
+        ctx.fillText(m.label, x, h * 0.3 + 7);
+      });
 
-  ctx.fillStyle = '#fff';
-  ctx.font = 'bold 28px sans-serif';
-  ctx.fillText('天顶 (ZENITH) — 平面图上被拉成一整条', w/2, 45);
-  ctx.fillText('天底 (NADIR) — 同理严重畸变', w/2, h - 20);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 28px sans-serif';
+      ctx.fillText('天顶 (ZENITH) — 平面图上被拉成一整条', w / 2, 45);
+      ctx.fillText('天底 (NADIR) — 同理严重畸变', w / 2, h - 20);
 
-  return cvs;
-}
+      return cvs;
+    }
 
-uploadTexture(generateTestPanorama());
+    uploadTexture(generateTestPanorama());
 
-// ---- 鼠标交互: 拖拽转yaw/pitch, 滚轮改fov ----
-let yaw = 180, pitch = 0, fov = 75;
-let isDragging = false, lastX = 0, lastY = 0;
-const statsEl = document.getElementById('stats');
+    // ---- 鼠标交互: 拖拽转yaw/pitch, 滚轮改fov ----
+    let yaw = 180, pitch = 0, fov = 75;
+    let isDragging = false, lastX = 0, lastY = 0;
+    const statsEl = document.getElementById('stats');
 
-function render() {
-  pitch = Math.max(-89, Math.min(89, pitch));
-  yaw = (yaw + 360) % 360;
-  gl.uniform1f(uYawLoc, yaw * Math.PI / 180);
-  gl.uniform1f(uPitchLoc, -pitch * Math.PI / 180);
-  gl.uniform1f(uFovLoc, fov * Math.PI / 180);
-  gl.uniform1f(uAspectLoc, canvas.width / canvas.height);
-  gl.uniform2f(uResolutionLoc, canvas.width, canvas.height);
-  gl.drawArrays(gl.TRIANGLES, 0, 6);
-  statsEl.textContent = `yaw: ${yaw.toFixed(1)}°　pitch: ${pitch.toFixed(1)}°　fov: ${fov.toFixed(0)}°`;
-}
+    function render() {
+      pitch = Math.max(-89, Math.min(89, pitch));
+      yaw = (yaw + 360) % 360;
+      gl.uniform1f(uYawLoc, yaw * Math.PI / 180);
+      gl.uniform1f(uPitchLoc, -pitch * Math.PI / 180);
+      gl.uniform1f(uFovLoc, fov * Math.PI / 180);
+      gl.uniform1f(uAspectLoc, canvas.width / canvas.height);
+      gl.uniform2f(uResolutionLoc, canvas.width, canvas.height);
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
+      statsEl.textContent = `yaw: ${yaw.toFixed(1)}°　pitch: ${pitch.toFixed(1)}°　fov: ${fov.toFixed(0)}°`;
+    }
 
-canvas.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; lastY = e.clientY; });
-window.addEventListener('mouseup', () => isDragging = false);
-window.addEventListener('mousemove', e => {
-  if (!isDragging) return;
-  const dx = e.clientX - lastX, dy = e.clientY - lastY;
-  lastX = e.clientX; lastY = e.clientY;
-  yaw -= dx * 0.15;
-  pitch += dy * 0.15;
-  render();
-});
+    canvas.addEventListener('mousedown', e => { isDragging = true; lastX = e.clientX; lastY = e.clientY; });
+    window.addEventListener('mouseup', () => isDragging = false);
+    window.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      const dx = e.clientX - lastX, dy = e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      yaw -= dx * 0.15;
+      pitch += dy * 0.15;
+      render();
+    });
 
-canvas.addEventListener('wheel', e => {
-  fov += e.deltaY * 0.01;
-  fov = Math.max(30, Math.min(90, fov));
-  render();
-  e.preventDefault();
-}, { passive: false });
+    canvas.addEventListener('wheel', e => {
+      fov += e.deltaY * 0.01;
+      fov = Math.max(30, Math.min(90, fov));
+      render();
+      e.preventDefault();
+    }, { passive: false });
 
-window.addEventListener('resize', render);
+    window.addEventListener('resize', render);
 
-// ---- 文件夹加载 + 步长导航 ----
-const IMAGE_EXT = /\.(jpe?g|png|webp|bmp|gif)$/i;
-let fileList = [];
-let currentIndex = -1;
-let currentObjectURL = null;
+    // ---- 文件夹加载 + 步长导航 ----
+    const IMAGE_EXT = /\.(jpe?g|png|webp|bmp|gif)$/i;
+    let fileList = [];
+    let currentIndex = -1;
+    let currentObjectURL = null;
 
-const folderInput = document.getElementById('folderInput');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const navInfo = document.getElementById('navInfo');
-const stepInput = document.getElementById('stepInput');
+    const folderInput = document.getElementById('folderInput');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const navInfo = document.getElementById('navInfo');
+    const stepInput = document.getElementById('stepInput');
 
-// 读取步长,做防呆处理:非法输入/负数/0 一律退回 1
-function getStep() {
-  const v = parseInt(stepInput.value, 10);
-  if (!Number.isFinite(v) || v < 1) {
-    stepInput.value = 1;
-    return 1;
-  }
-  return v;
-}
+    // 读取步长,做防呆处理:非法输入/负数/0 一律退回 1
+    function getStep() {
+      const v = parseInt(stepInput.value, 10);
+      if (!Number.isFinite(v) || v < 1) {
+        stepInput.value = 1;
+        return 1;
+      }
+      return v;
+    }
 
-document.getElementById('loadFolderBtn').addEventListener('click', () => folderInput.click());
-document.getElementById('testBtn').addEventListener('click', () => {
-  fileList = [];
-  currentIndex = -1;
-  updateNavUI();
-  uploadTexture(generateTestPanorama());
-  render();
-});
+    document.getElementById('loadFolderBtn').addEventListener('click', () => folderInput.click());
+    document.getElementById('testBtn').addEventListener('click', () => {
+      fileList = [];
+      currentIndex = -1;
+      updateNavUI();
+      uploadTexture(generateTestPanorama());
+      render();
+    });
 
-folderInput.addEventListener('change', e => {
-  const files = Array.from(e.target.files).filter(f => IMAGE_EXT.test(f.name));
-  files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+    folderInput.addEventListener('change', e => {
+      const files = Array.from(e.target.files).filter(f => IMAGE_EXT.test(f.name));
+      files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
 
-  if (files.length === 0) {
-    alert('这个文件夹里没找到图片文件(支持 jpg/png/webp/bmp/gif)');
-    return;
-  }
+      if (files.length === 0) {
+        alert('这个文件夹里没找到图片文件(支持 jpg/png/webp/bmp/gif)');
+        return;
+      }
 
-  fileList = files;
-  loadImageAt(0);
-});
+      fileList = files;
+      loadImageAt(0);
+    });
 
-function loadImageAt(index) {
-  // 步长可能跳出范围(比如剩8张但步长设50),这里夹紧到边界而不是原地不动
-  // 这样"下一批"这个操作在接近末尾时,效果是"跳到最后一张",而不是卡住没反应
-  const clamped = Math.max(0, Math.min(fileList.length - 1, index));
-  if (clamped === currentIndex) return;
-  currentIndex = clamped;
+    function loadImageAt(index) {
+      // 步长可能跳出范围(比如剩8张但步长设50),这里夹紧到边界而不是原地不动
+      // 这样"下一批"这个操作在接近末尾时,效果是"跳到最后一张",而不是卡住没反应
+      const clamped = Math.max(0, Math.min(fileList.length - 1, index));
+      if (clamped === currentIndex) return;
+      currentIndex = clamped;
 
-  const file = fileList[currentIndex];
-  if (currentObjectURL) URL.revokeObjectURL(currentObjectURL);
-  currentObjectURL = URL.createObjectURL(file);
+      const file = fileList[currentIndex];
+      if (currentObjectURL) URL.revokeObjectURL(currentObjectURL);
+      currentObjectURL = URL.createObjectURL(file);
 
-  const img = new Image();
-  img.onload = () => {
-    uploadTexture(img);
+      const img = new Image();
+      img.onload = () => {
+        uploadTexture(img);
+        render();
+        updateNavUI();
+      };
+      img.onerror = err => {
+        console.error('加载失败:', file.name, err);
+        updateNavUI();
+      };
+      img.src = currentObjectURL;
+
+      updateNavUI();
+    }
+
+    function updateNavUI() {
+      if (fileList.length === 0) {
+        navInfo.querySelector('.fname').textContent = '未加载文件夹';
+        navInfo.querySelector('.fidx').textContent = '—';
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        return;
+      }
+      navInfo.querySelector('.fname').textContent = fileList[currentIndex].name;
+      navInfo.querySelector('.fidx').textContent = `${currentIndex + 1} / ${fileList.length}`;
+      prevBtn.disabled = (currentIndex <= 0);
+      nextBtn.disabled = (currentIndex >= fileList.length - 1);
+    }
+
+    prevBtn.addEventListener('click', () => loadImageAt(currentIndex - getStep()));
+    nextBtn.addEventListener('click', () => loadImageAt(currentIndex + getStep()));
+
+    window.addEventListener('keydown', e => {
+      // 步长输入框获得焦点时,方向键应该正常编辑数字,不该触发翻图
+      if (document.activeElement === stepInput) return;
+      if (e.key === 'ArrowLeft' || e.code === 'KeyA') loadImageAt(currentIndex - getStep());
+      if (e.key === 'ArrowRight' || e.code === 'KeyD') loadImageAt(currentIndex + getStep());
+    });
+
     render();
-    updateNavUI();
-  };
-  img.onerror = err => {
-    console.error('加载失败:', file.name, err);
-    updateNavUI();
-  };
-  img.src = currentObjectURL;
-
-  updateNavUI();
-}
-
-function updateNavUI() {
-  if (fileList.length === 0) {
-    navInfo.querySelector('.fname').textContent = '未加载文件夹';
-    navInfo.querySelector('.fidx').textContent = '—';
-    prevBtn.disabled = true;
-    nextBtn.disabled = true;
-    return;
-  }
-  navInfo.querySelector('.fname').textContent = fileList[currentIndex].name;
-  navInfo.querySelector('.fidx').textContent = `${currentIndex + 1} / ${fileList.length}`;
-  prevBtn.disabled = (currentIndex <= 0);
-  nextBtn.disabled = (currentIndex >= fileList.length - 1);
-}
-
-prevBtn.addEventListener('click', () => loadImageAt(currentIndex - getStep()));
-nextBtn.addEventListener('click', () => loadImageAt(currentIndex + getStep()));
-
-window.addEventListener('keydown', e => {
-  // 步长输入框获得焦点时,方向键应该正常编辑数字,不该触发翻图
-  if (document.activeElement === stepInput) return;
-  if (e.key === 'ArrowLeft')  loadImageAt(currentIndex - getStep());
-  if (e.key === 'ArrowRight') loadImageAt(currentIndex + getStep());
-});
-
-render();
-</script>
+  </script>
 </body>
+
 </html>
