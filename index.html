@@ -271,8 +271,9 @@ const statsEl = document.getElementById('stats');
 
 function render() {
   pitch = Math.max(-89, Math.min(89, pitch));
+  yaw = (yaw + 360) % 360;
   gl.uniform1f(uYawLoc, yaw * Math.PI / 180);
-  gl.uniform1f(uPitchLoc, pitch * Math.PI / 180);
+  gl.uniform1f(uPitchLoc, -pitch * Math.PI / 180);
   gl.uniform1f(uFovLoc, fov * Math.PI / 180);
   gl.uniform1f(uAspectLoc, canvas.width / canvas.height);
   gl.uniform2f(uResolutionLoc, canvas.width, canvas.height);
@@ -287,7 +288,7 @@ window.addEventListener('mousemove', e => {
   const dx = e.clientX - lastX, dy = e.clientY - lastY;
   lastX = e.clientX; lastY = e.clientY;
   yaw -= dx * 0.15;
-  pitch -= dy * 0.15;
+  pitch += dy * 0.15;
   render();
 });
 
